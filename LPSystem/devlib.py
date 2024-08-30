@@ -1,16 +1,16 @@
-
-#注意：在导入devlib后请不要导入mpython，否则会报错，反过来也是，在导入mpython后请不要导入devlib，否则会报错
-
+# 注意：在导入devlib后请不要导入mpython，否则会报错，反过来也是，在导入mpython后请不要导入devlib，否则会报错
 from machine import Pin,I2C,TouchPad,ADC
 from esp import flash_read
 from neopixel import NeoPixel
-from ssd1106 import SSD1106_I2C
+from LP_OS.ssd1106_dpr import SSD1106_I2C
 from micropython import schedule,const
+from gui import *
 import micropython
 from framebuf import FrameBuffer
 import ustruct,math,time
 import calibrate_img
 import NVS
+import network
 
 overclock=True
 if overclock:
@@ -18,6 +18,31 @@ if overclock:
 else:
     i2cclock= 400000
 i2c = I2C(0, scl=Pin(Pin.P19), sda=Pin(Pin.P20), freq=i2cclock)
+
+class wifi:
+    def __init__(self):
+        self.sta = network.WLAN(network.STA_IF)
+
+    def connectWiFi(self, ssid, passwd):
+        self.sta.active(False)
+        self.sta.active(True)
+        self.sta.connect(ssid, passwd)
+        print("Connection WiFi", "INFO")
+        STATUS=self.sta.status()
+        while (STATUS != 1010):
+            if STATUS == 200 or STATUS == 204:
+                print("Timeout!,check your wifi password and keep your network unblocked")
+                return False
+            elif STATUS == 202: 
+                print("WiFi password was wrong!")
+                return False
+            print(".", end="")
+            STATUS=self.sta.status()
+            time.sleep_ms(500)
+        print(self.sta.ifconfig())
+        print('WiFi %s Connection Successful, Config:%s' % (ssid,str(self.sta.ifconfig())), "INFO")
+        return True
+
 
 class Colormode:
     noshow=0
@@ -66,7 +91,7 @@ class OLED(SSD1106_I2C):
     def _reverse(self,bytearr:bytearray):
         for i in range(len(bytearr)):
             bytearr[i]=~bytearr[i]
-    def DispChar(self,s,x,y,mode=Colormode.normal,out=Outmode.stop,*,maximum_x=128,space=1,newlinecode=True,return_x=0,return_addy=16,ellipsis="...",end="",buffer=None):
+    def DispChar(self, s, x, y, mode=Colormode.normal, out=Outmode.stop,maximum_x=128,space=1,newlinecode=True,return_x=0,return_addy=16,ellipsis="...",end="",buffer=None):
         stat_w=0
         stat_h=0
         stat_chars=0
