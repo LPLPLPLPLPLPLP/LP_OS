@@ -1,7 +1,4 @@
-from LPSystem.BlankEngine import*
-try:
-    from BlankEngine import*
-except:pass
-#LPSys专用库文件↑
+import sys
 import _thread
+sys.path.append("/LPSystem")
 _thread.start_new_thread(Mouse,())
