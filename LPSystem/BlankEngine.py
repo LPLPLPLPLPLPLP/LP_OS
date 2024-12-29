@@ -1,5 +1,6 @@
 from devlib import*
 from Core import*
+import System.weigets as wt
 import framebuf,_thread
 import gc
 Wlan = wifi()
@@ -13,7 +14,8 @@ GetStringWidth = lambda s:oled.DispChar(s,0,0,Colormode.noshow)[0][0]#by Gxxk
 images = [bytearray([0X80,0XC0,0XA0,0X90,0X88,0XB0,0X50,0X08])]#np 
 wifi_images = [bytearray([0X07,0XE0,0X0C,0X30,0X34,0X2C,0X24,0X24,0X44,0X22,0XFF,0XFF,0X84,0X21,0X84,0X21,0X84,0X00,0X84,0X41,0XFF,0X22,0X44,0X14,0X24,0X08,0X34,0X14,0X0C,0X22,0X07,0X41,]),#didn't connect
                bytearray([0X00,0X00,0X00,0X00,0X00,0X00,0X0F,0XF0,0X3F,0XFC,0X70,0X1E,0XE0,0X07,0X4F,0XF2,0X1F,0XF8,0X38,0X1C,0X10,0X08,0X07,0XE0,0X0F,0XF0,0X04,0X20,0X01,0X80,0X01,0X80,])]#connected
-desktopFileList = GetDFFileList("/LPSystem/User/Desktop")
+desktopFileList = GetDFFileList("/LPSystem/Desktop")
+imageMode = 0
 RunningApps = []#正在润(running)的窗口
 class Button:
     def __init__(self, x, y, width, height, title, name, framebuffer=oled, Round=False, r=2, offset_text=0):
@@ -124,7 +126,13 @@ class Window:
             self.x=0
             self.y=0
 
-#
+#-----------------------------------------------------------------------------------------------------------------------
+
+def widgets(name1=False,name2=False):#warn:每个组件只能占用64*24的空间
+    fbuf = framebuf.Framebuffer(bytearray(64*48),64,48,framebuf.MONO_VLSB)
+    widget = SimpleWindow(-64,0,64,48,fbuf)
+    if name1:eval(f"wt.{name1}(fbuf,0)")
+    elif name2:eval(f"wt.{name2}(fbuf,24)")
 
 def addWindow(title, x, y, width, height):
     windowsTitle.append(title)
@@ -152,7 +160,7 @@ def _Desktop():
     if Start.Runtime():
         oled.poweroff()
         __import__("machine").deepsleep()
-    oled.Bitmap(70,48,int(Wlan.sta.isconnected()),16,16,1)
+    oled.Bitmap(70,48,wifi_images[int(Wlan.sta.isconnected())],16,16,1)
     oled.text(UniTime(),88,52,1)
     oled.hline(0,47,128,1)
 def Mouse():

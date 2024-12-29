@@ -1,11 +1,12 @@
 from LPSystem.devlib import*
 import gc,_thread,time
 stop = False
-logo = [0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFC,0X00,0X3F,0XFC,0X00,0X3F,0XFC,
+speed = 2
+logo = bytearray([0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFC,0X00,0X3F,0XFC,0X00,0X3F,0XFC,
 0X00,0X3F,0XE3,0X81,0XC7,0XE3,0X81,0XC7,0XE3,0X81,0XC7,0XE0,0X7E,0X07,0XE0,0X7E,
 0X07,0XE0,0X7E,0X07,0XE0,0X7E,0X07,0XE0,0X7E,0X07,0XE0,0X7E,0X07,0XE3,0X81,0XC7,
 0XE3,0X81,0XC7,0XE3,0X81,0XC7,0XFC,0X00,0X3F,0XFC,0X00,0X3F,0XFC,0X00,0X3F,0XFF,
-0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF]
+0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF,0XFF])
 loads = [bytearray([0X01,0XF8,0X00,0X07,0XFE,0X00,0X09,0XFD,0X00,0X10,0XFC,0X80,0X20,0XF8,0X40,0X43,0X0C,0X20,0X44,0X02,0X20,0X84,0X02,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X84,0X02,0X10,0X44,0X02,0X20,0X43,0X0C,0X20,0X20,0XF0,0X40,0X10,0X00,0X80,0X08,0X01,0X00,0X06,0X06,0X00,0X01,0XF8,0X00,]),
 bytearray([0X01,0XF8,0X00,0X06,0XFE,0X00,0X08,0X7F,0X00,0X10,0X7F,0X80,0X20,0XFF,0X40,0X43,0X0E,0X20,0X44,0X02,0X20,0X84,0X02,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X84,0X02,0X10,0X44,0X02,0X20,0X43,0X0C,0X20,0X20,0XF0,0X40,0X10,0X00,0X80,0X08,0X01,0X00,0X06,0X06,0X00,0X01,0XF8,0X00,]),
 bytearray([0X01,0XF8,0X00,0X06,0X3E,0X00,0X08,0X1F,0X00,0X10,0X1F,0X80,0X20,0XFF,0XC0,0X43,0X0F,0XE0,0X44,0X03,0XA0,0X84,0X03,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X84,0X02,0X10,0X44,0X02,0X20,0X43,0X0C,0X20,0X20,0XF0,0X40,0X10,0X00,0X80,0X08,0X01,0X00,0X06,0X06,0X00,0X01,0XF8,0X00,]),
@@ -26,30 +27,33 @@ bytearray([0X01,0XF8,0X00,0X07,0X06,0X00,0X0F,0X81,0X00,0X1F,0X80,0X80,0X3F,0XF8
 bytearray([0X01,0XF8,0X00,0X07,0XFE,0X00,0X09,0XFD,0X00,0X10,0XF8,0X80,0X20,0XF8,0X40,0X63,0X0C,0X60,0X44,0X02,0X20,0X84,0X02,0X30,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X84,0X02,0X10,0X44,0X02,0X20,0X43,0X0C,0X60,0X20,0XF0,0X40,0X10,0X00,0X80,0X08,0X01,0X00,0X07,0X0E,0X00,0X01,0XF8,0X00,]),]
 gc.collect()
 def _load():
+    speed = speed * 0.01
     while not stop:
         for i in loads:
             if i != '' and not stop:
                 oled.fill(0)
-                oled.Bitmap(52,19,bytearray(logo),24,24,1)
+                oled.Bitmap(52,19,logo,24,24,1)
                 oled.Bitmap(54,44,i,20,20,1)
                 oled.show()
-                time.sleep(0.02)
+                time.sleep(speed)
 _thread.start_new_thread(_load,())
 #-----启动项------#
-import LPSystem.UI as ui
 import ntptime
 Wlan = wifi()
-ui.MessageBox("正在连接网络")
-if Wlan.connectWiFi("ChinaNet-x6VA","1145141919810"):
-    ntptime.settime(timezone=8, server='time.windows.com')
-    ui.MessageBox("Wifi已成功连接")
-else:
-    ui.MessageBox("Wifi连接失败")
+with open('LPSystem/System/network.conf','r') as f:
+    f.seek(0)
+    config = f.readline()
+    while not config == '':
+        config = config.split(',')
+        print("Connecting to WiFi:",config[0])
+        if Wlan.connectWiFi(config[0],config[1]):
+            ntptime.settime(timezone=8, server='time.windows.com')
+        config = f.readline()
 #----------------#
-stop = True
 logo = None
 loads = None
 del loads,logo
 gc.collect()
 print("mem_info:",gc.mem_free())
+stop = True
 execfile("/LPSystem/Desktop.py")

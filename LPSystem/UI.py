@@ -1,7 +1,6 @@
 from devlib import*
 from BlankEngine import*
 import framebuf
-import System.weights as wt
 import time
 def MessageBox(msg):
     width = GetStringWidth(msg)
@@ -32,8 +31,3 @@ def MessageBox(msg):
     windows.pop(windowsTitle.index("MessageBox"))
     windowsTitle.pop(windowsTitle.index("MessageBox"))
 
-def widgets(name1=False,name2=False):#warn:每个组件只能占用64*24的空间
-    fbuf = framebuf.Framebuffer(bytearray(64*48),64,48,framebuf.MONO_VLSB)
-    widget = SimpleWindow(-64,0,64,48,fbuf)
-    if name1:execfile(name1)
-    if name2:execfile(name2)
