@@ -24,22 +24,21 @@ class wifi:
         self.sta = network.WLAN(network.STA_IF)
 
     def connectWiFi(self, ssid, passwd, timeout=10):
-        self.sta.active(False)
         self.sta.active(True)
         self.sta.connect(ssid, passwd)
-        print("Connection WiFi", "INFO")
+        print("Connection WiFi")
         STATUS=self.sta.status()
         time_now = 0
+        timeout = timeout*2
         while (STATUS != 1010):
-            if time_now>=timeout*2:
+            if time_now==timeout:
                 print("Timeout!,check your wifi password and keep your network unblocked")
                 return False
             print(".", end="")
             STATUS=self.sta.status()
             time.sleep_ms(500)
             time_now+=1
-        print(self.sta.ifconfig())
-        print('WiFi %s Connection Successful, Config:%s' % (ssid,str(self.sta.ifconfig())), "INFO")
+        print('\nWiFi %s Connection Successful, Config:' % ssid,self.sta.ifconfig())
         return True
 class Colormode:
     noshow=0
@@ -226,6 +225,7 @@ class OLED(SSD1106_I2C):
             stat_w=max(stat_w,char_x-x)
         stat_h=stat_returns*return_addy+char_h
         return (stat_w,stat_h),(stat_chars,stat_returns)
+
     def DispChar_font(self,font,s,x,y,mode=Colormode.normal,out=Outmode.stop,*,maximum_x=128,space=1,newlinecode=True,return_x=0,return_addy=16,ellipsis="...",end="",buffer=None):
         stat_w=0
         stat_h=0
@@ -348,7 +348,7 @@ class OLED(SSD1106_I2C):
 
 if 60 in i2c.scan():
     oled = OLED(60)
-    display = oled
+    #display = oled
 else:
     pass
 

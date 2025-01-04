@@ -6,13 +6,13 @@ import framebuf
 # register definitions
 SET_CONTRAST        = const(0x81)
 SET_ENTIRE_ON       = const(0xa4)
-SET_ENTIRE_ON1      = const(0xaf)
+#SET_ENTIRE_ON1      = const(0xaf)
 SET_NORM_INV        = const(0xa6)
 SET_DISP_OFF        = const(0xae)
 SET_DISP_ON         = const(0xaf)
 SET_MEM_ADDR        = const(0x20)
-SET_COL_ADDR        = const(0x21)
-SET_PAGE_ADDR       = const(0x22)
+#SET_COL_ADDR        = const(0x21)
+#SET_PAGE_ADDR       = const(0x22)
 SET_DISP_START_LINE = const(0x40)
 SET_SEG_REMAP       = const(0xa0)
 SET_MUX_RATIO       = const(0xa8)
@@ -23,12 +23,12 @@ SET_DISP_CLK_DIV    = const(0xd5)
 SET_PRECHARGE       = const(0xd9)
 SET_VCOM_DESEL      = const(0xdb)
 SET_CHARGE_PUMP     = const(0x8d)
-SET_CHARGE_PUMP1    = const(0xad)
+#SET_CHARGE_PUMP1    = const(0xad)
 SET_COL_ADDR_L      = const(0x02)
 SET_COL_ADDR_H      = const(0x10)
 SET_PAGE_ADDR1      = const(0xb0)
 SET_CONTRACT_CTRL   = const(0x81)
-SET_DUTY            = const(0x3f)
+#SET_DUTY            = const(0x3f)
 SET_VCC_SOURCE      = const(0x8b)
 SET_VPP             = const(0x33)
 
@@ -100,17 +100,13 @@ class SSD1106_I2C(SSD1106):
     def __init__(self, width, height, i2c, addr=0x3c, external_vcc=False):
         self.i2c = i2c
         self.addr = addr
-        self.temp = bytearray(2)
         super().__init__(width, height, external_vcc)
 
     def write_cmd(self, cmd):
-        self.temp[0] = 0x80 # Co=1, D/C#=0
-        self.temp[1] = cmd
-        self.i2c.writeto(self.addr, self.temp)
+        self.i2c.writeto(self.addr, bytearray([0x80, cmd]))
 
     def write_data(self, buf):
-        tmp = bytearray([0x40]) # Co=0, D/C#=1
-        self.i2c.writeto(self.addr, tmp+buf)
+        self.i2c.writeto(self.addr, bytearray([0x40])+buf)
 
 
 class SSD1106_SPI(SSD1106):

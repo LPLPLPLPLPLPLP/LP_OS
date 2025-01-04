@@ -27,6 +27,7 @@ bytearray([0X01,0XF8,0X00,0X07,0X06,0X00,0X0F,0X81,0X00,0X1F,0X80,0X80,0X3F,0XF8
 bytearray([0X01,0XF8,0X00,0X07,0XFE,0X00,0X09,0XFD,0X00,0X10,0XF8,0X80,0X20,0XF8,0X40,0X63,0X0C,0X60,0X44,0X02,0X20,0X84,0X02,0X30,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X88,0X01,0X10,0X84,0X02,0X10,0X44,0X02,0X20,0X43,0X0C,0X60,0X20,0XF0,0X40,0X10,0X00,0X80,0X08,0X01,0X00,0X07,0X0E,0X00,0X01,0XF8,0X00,]),]
 gc.collect()
 def _load():
+    global stop,speed
     speed = speed * 0.01
     while not stop:
         for i in loads:
@@ -39,19 +40,18 @@ def _load():
 _thread.start_new_thread(_load,())
 #-----启动项------#
 import ntptime
-Wlan = wifi()
 with open('LPSystem/System/network.conf','r') as f:
     f.seek(0)
-    config = f.readline()
+    config = f.readline().replace('\r','').replace('\n','')
     while not config == '':
         config = config.split(',')
         print("Connecting to WiFi:",config[0])
-        if Wlan.connectWiFi(config[0],config[1]):
+        if wifi().connectWiFi(config[0],config[1]):
             ntptime.settime(timezone=8, server='time.windows.com')
-        config = f.readline()
+            break
+        config = f.readline().replace('\r','').replace('\n','')
 #----------------#
-logo = None
-loads = None
+logo,loads = [None] * 2
 del loads,logo
 gc.collect()
 print("mem_info:",gc.mem_free())

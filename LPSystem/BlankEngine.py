@@ -1,6 +1,5 @@
 from devlib import*
 from Core import*
-import System.weigets as wt
 import framebuf,_thread
 import gc
 Wlan = wifi()
@@ -11,11 +10,10 @@ MiceCatch = ""#已经被鼠标锁定
 windowsTitle = []#窗口标题
 windows = []#窗口 主！体！
 GetStringWidth = lambda s:oled.DispChar(s,0,0,Colormode.noshow)[0][0]#by Gxxk
-images = [bytearray([0X80,0XC0,0XA0,0X90,0X88,0XB0,0X50,0X08])]#np 
+mouse_image = bytearray([0X80,0XC0,0XA0,0X90,0X88,0XB0,0X50,0X08])#np 
 wifi_images = [bytearray([0X07,0XE0,0X0C,0X30,0X34,0X2C,0X24,0X24,0X44,0X22,0XFF,0XFF,0X84,0X21,0X84,0X21,0X84,0X00,0X84,0X41,0XFF,0X22,0X44,0X14,0X24,0X08,0X34,0X14,0X0C,0X22,0X07,0X41,]),#didn't connect
                bytearray([0X00,0X00,0X00,0X00,0X00,0X00,0X0F,0XF0,0X3F,0XFC,0X70,0X1E,0XE0,0X07,0X4F,0XF2,0X1F,0XF8,0X38,0X1C,0X10,0X08,0X07,0XE0,0X0F,0XF0,0X04,0X20,0X01,0X80,0X01,0X80,])]#connected
 desktopFileList = GetDFFileList("/LPSystem/Desktop")
-imageMode = 0
 RunningApps = []#正在润(running)的窗口
 class Button:
     def __init__(self, x, y, width, height, title, name, framebuffer=oled, Round=False, r=2, offset_text=0):
@@ -128,12 +126,6 @@ class Window:
 
 #-----------------------------------------------------------------------------------------------------------------------
 
-def widgets(name1=False,name2=False):#warn:每个组件只能占用64*24的空间
-    fbuf = framebuf.Framebuffer(bytearray(64*48),64,48,framebuf.MONO_VLSB)
-    widget = SimpleWindow(-64,0,64,48,fbuf)
-    if name1:eval(f"wt.{name1}(fbuf,0)")
-    elif name2:eval(f"wt.{name2}(fbuf,24)")
-
 def addWindow(title, x, y, width, height):
     windowsTitle.append(title)
     windows.append(Window(x, y, width, height, title))
@@ -164,14 +156,14 @@ def _Desktop():
     oled.text(UniTime(),88,52,1)
     oled.hline(0,47,128,1)
 def Mouse():
-    global pointer,MiceStatus,imageMode,MiceCatch
+    global pointer,MiceStatus,MiceCatch
     try:MiceCatch = windowsTitle[len(windowsTitle-1)]
     except:pass
     while True:
         oled.fill(0)
         _Desktop()
         _WindowsManager()
-        oled.Bitmap(pointer[0],pointer[1],images[imageMode],5,8,1)
+        oled.Bitmap(pointer[0],pointer[1],mouse_image,5,8,1)
         oled.show()
         MouceX,MouseY=accelerometer.get_x(),accelerometer.get_y()
         if MouseY > -0.2:
