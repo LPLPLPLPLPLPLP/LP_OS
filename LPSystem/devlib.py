@@ -1,4 +1,5 @@
 # 注意：在导入devlib后请不要导入mpython，否则会报错，反过来也是，在导入mpython后请不要导入devlib，否则会报错
+# devlib - by emofalling
 from machine import Pin,I2C,TouchPad,ADC
 from esp import flash_read
 from neopixel import NeoPixel
@@ -60,7 +61,7 @@ class Outmode:
     autoreturn2=4
     ellipsis=5
 
-font_address=0x400000
+font_address=micropython.const(0x400000)
 maximum_fontbitmaplen=64
 class OLED(SSD1106_I2C):
     def __init__(self,addr):

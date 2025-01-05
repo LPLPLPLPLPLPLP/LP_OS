@@ -1,7 +1,6 @@
 #ssd1106_dpr - by emofailing
 from micropython import const
 import framebuf
-# print("imported ssd1106_dpr")
 
 # register definitions
 SET_CONTRAST        = const(0x81)
@@ -85,12 +84,12 @@ class SSD1106(framebuf.FrameBuffer):
         write_data = self.write_data
         buffer = self.buffer
         previous_pages_record = self.previous_pages_record
-        for i in range(0, 8):
+        for i in [0,1,2,3,4,5,6,7]:
             data = buffer[i*128:(i+1)*128]
             if previous_pages_record[i] != data:
-                write_cmd(SET_PAGE_ADDR1 + i)
-                write_cmd(SET_COL_ADDR_L + 0)     # offset 2 pixels for 128x64 panel
-                write_cmd(SET_COL_ADDR_H + 0)
+                write_cmd(SET_PAGE_ADDR1 + i) # set page address
+                write_cmd(SET_COL_ADDR_L)     # offset 2 pixels for 128x64 panel
+                write_cmd(SET_COL_ADDR_H)
                 write_data(data)   # send one page display data
                 self.previous_pages_record[i] = data
 

@@ -45,8 +45,13 @@ class Button:
 ButtonList = []
 ButtonX=0;ButtonY=0
 for i in desktopFileList:
-    ButtonList.append(Button(ButtonX,ButtonY,GetStringWidth(i),16,i,'Desktop'))
-    ButtonY+=17
+    with open("/LPSystem/Desktop/{}.df".format(i),'r') as f:
+        f.seek(0);f.readline()
+        IconButton = Button(ButtonX,ButtonY,16,16,i,'Desktop')
+        ButtonList.append(IconButton)
+        IconConfig = eval("[{}]".format(f.readline().replace('\n','').replace('\r','')))
+        IconButton.buttonfbuf.Bitmap(0,0,bytearray(IconConfig),16,16,1)
+        ButtonY+=17
 Start = Button(0,48,16,16,"LP","Desktop",Round=True,r=2,offset_text=1)
 class SimpleWindow:
     def __init__(self,x,y,width,height,fbuf):
@@ -91,7 +96,7 @@ class Window:
     def Clear(self):
         self.fbuf.fill_rect(self.x+1,self.y+16,self.width-2,self.height-16,0)
     def LogicRuntime(self):
-        global MiceStatus, MiceCatch, pointer, PassCheck,imageMode
+        global MiceStatus, MiceCatch, pointer, PassCheck
         if self.button_close.Runtime(self.x+self.width-16, self.y):
             index = windowsTitle.index(self.title)
             windowsTitle.pop(index)
@@ -143,11 +148,15 @@ def _Desktop():
     for i in ButtonList:
         if i.Runtime():
             name=desktopFileList[ButtonList.index(i)]
-            if not (name in RunningApps):RunningApps.append(name)
-            else:
-                with open("/LPSystem/User/Desktop/{}.df".format(name),'r') as f:
-                    path = f.read().replace('\r\n','').replace('\n','')
+            with open("/LPSystem/Desktop/{}.df".format(name),'r') as f:
+                f.seek(0)
+                path = f.readline().replace('\r','').replace('\n','')
+                if not (path in RunningApps):RunningApps.append(path)
+                else:
+                    RunningApps.append(path)
                     print("runfile at",repr(path))
+                    gc.collect()
+                    print("mem_info:",gc.mem_free())
                     _thread.start_new_thread(execfile,(path,))
     if Start.Runtime():
         oled.poweroff()
