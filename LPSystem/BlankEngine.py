@@ -2,7 +2,7 @@ from devlib import*
 from Core import*
 import framebuf,_thread
 import gc
-Wlan = wifi()
+wlan = wifi()
 pointer = [64,32]#鼠标位置
 MiceStatus = False#鼠标状态
 PassCheck = False#鼠标状态是否已经被窗口判定
@@ -15,6 +15,7 @@ wifi_images = [bytearray([0X07,0XE0,0X0C,0X30,0X34,0X2C,0X24,0X24,0X44,0X22,0XFF
                bytearray([0X00,0X00,0X00,0X00,0X00,0X00,0X0F,0XF0,0X3F,0XFC,0X70,0X1E,0XE0,0X07,0X4F,0XF2,0X1F,0XF8,0X38,0X1C,0X10,0X08,0X07,0XE0,0X0F,0XF0,0X04,0X20,0X01,0X80,0X01,0X80,])]#connected
 desktopFileList = GetDFFileList("/LPSystem/Desktop")
 RunningApps = []#正在润(running)的窗口
+#---------按钮类---------#
 class Button:
     def __init__(self, x, y, width, height, title, name, framebuffer=oled, Round=False, r=2, offset_text=0):
         self.x = x
@@ -39,9 +40,10 @@ class Button:
         if triggerX==None:triggerX=self.x
         if triggerY==None:triggerY=self.y
         self.fbuf.blit(self.buttonfbuf,self.x,self.y)
-        if (pointer[0] >= triggerX) and (pointer[0] <= triggerX+self.width) and (pointer[1] >= triggerY) and (pointer[1] <= triggerY+self.height) and (MiceCatch==self.name or self.name=='Desktop'):
+        if (pointer[0] >= triggerX) and (pointer[0] <= triggerX+self.width) and (pointer[1] >= triggerY) and (pointer[1] <= triggerY+self.height) and (MiceCatch==self.name or (self.name=='Desktop' and MiceCatch==None)):
             self.fbuf.fill_rect(self.x, self.y, self.width, self.height, 1)
             return MiceStatus
+#---------桌面图标绘制---------#
 ButtonList = []
 ButtonX=0;ButtonY=0
 for i in desktopFileList:
@@ -53,6 +55,7 @@ for i in desktopFileList:
         IconButton.buttonfbuf.Bitmap(0,0,bytearray(IconConfig),16,16,1)
         ButtonY+=17
 Start = Button(0,48,16,16,"LP","Desktop",Round=True,r=2,offset_text=1)
+#---------窗口类---------#
 class SimpleWindow:
     def __init__(self,x,y,width,height,fbuf):
         self.x = x
@@ -134,44 +137,41 @@ class Window:
 def addWindow(title, x, y, width, height):
     windowsTitle.append(title)
     windows.append(Window(x, y, width, height, title))
-def _WindowsManager():
-    global PassCheck
-    PassCheck = False
-    for i in range(len(windows)):
-        try:
-            windows[i].Runtime()
-            windows[len(windows)-i-1].LogicRuntime()
-        except:
-            windowsTitle.pop(i)
-            windows.pop(i)
-def _Desktop():
-    for i in ButtonList:
-        if i.Runtime():
-            name=desktopFileList[ButtonList.index(i)]
-            with open("/LPSystem/Desktop/{}.df".format(name),'r') as f:
-                f.seek(0)
-                path = f.readline().replace('\r','').replace('\n','')
-                if not (path in RunningApps):RunningApps.append(path)
-                else:
-                    RunningApps.append(path)
-                    print("runfile at",repr(path))
-                    gc.collect()
-                    print("mem_info:",gc.mem_free())
-                    _thread.start_new_thread(execfile,(path,))
-    if Start.Runtime():
-        oled.poweroff()
-        __import__("machine").deepsleep()
-    oled.Bitmap(70,48,wifi_images[int(Wlan.sta.isconnected())],16,16,1)
-    oled.text(UniTime(),88,52,1)
-    oled.hline(0,47,128,1)
 def Mouse():
-    global pointer,MiceStatus,MiceCatch
-    try:MiceCatch = windowsTitle[len(windowsTitle-1)]
-    except:pass
+    global pointer,MiceStatus,MiceCatch,PassCheck
     while True:
+        MiceCatch = None
         oled.fill(0)
-        _Desktop()
-        _WindowsManager()
+        #Desktop
+        for i in ButtonList:
+            if i.Runtime():
+                name=desktopFileList[ButtonList.index(i)]
+                with open("/LPSystem/Desktop/{}.df".format(name),'r') as f:
+                    f.seek(0)
+                    path = f.readline().replace('\r','').replace('\n','')
+                    if not (path in RunningApps):RunningApps.append(path)
+                    else:
+                        RunningApps.append(path)
+                        print("runfile at",repr(path))
+                        gc.collect()
+                        print("mem_info:",gc.mem_free())
+                        _thread.start_new_thread(execfile,(path,))
+        if Start.Runtime():
+            oled.poweroff()
+            __import__("machine").deepsleep()
+        oled.Bitmap(70,48,wifi_images[int(wlan.sta.isconnected())],16,16,1)
+        oled.text(UniTime(),88,52,1)
+        oled.hline(0,47,128,1)
+        #WindowsManager
+        PassCheck = False
+        for i in range(len(windows)):
+            try:
+                windows[i].Runtime()
+                windows[len(windows)-i-1].LogicRuntime()#绘制的优先级和逻辑的优先级相反
+            except:
+                windowsTitle.pop(i)
+                windows.pop(i)
+        #----------------
         oled.Bitmap(pointer[0],pointer[1],mouse_image,5,8,1)
         oled.show()
         MouceX,MouseY=accelerometer.get_x(),accelerometer.get_y()

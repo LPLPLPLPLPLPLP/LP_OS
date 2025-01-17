@@ -28,3 +28,4 @@ from BlankEngine import*
 while not unlock:pass
 gc.collect()
 _thread.start_new_thread(Mouse,())
+sys.exit(1)
