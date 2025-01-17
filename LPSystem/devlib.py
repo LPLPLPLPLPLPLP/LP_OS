@@ -3,7 +3,7 @@
 from machine import Pin,I2C,TouchPad,ADC
 from esp import flash_read
 from neopixel import NeoPixel
-from LPSystem.ssd1106_dpr import SSD1106_I2C
+from ssd1106_dpr import SSD1106_I2C
 from micropython import schedule,const
 from gui import *
 import micropython
@@ -14,11 +14,7 @@ import NVS
 import network
 
 overclock=True
-if overclock:
-    i2cclock=1250000
-else:
-    i2cclock= 400000
-i2c = I2C(0, scl=Pin(Pin.P19), sda=Pin(Pin.P20), freq=i2cclock)
+i2c = I2C(0, scl=Pin(Pin.P19), sda=Pin(Pin.P20), freq=1250000 if overclock else 400000)
 
 class wifi:
     def __init__(self):
@@ -110,11 +106,7 @@ class OLED(SSD1106_I2C):
         charaddr=self.font_addr
         first_char_info_address = charaddr + 18
         reverse=self._reverse
-
-        if buffer:
-            screen=buffer
-        else:
-            screen=self
+        screen = buffer if buffer else self
         blit=screen.blit
         fill_rect=screen.fill_rect
          
