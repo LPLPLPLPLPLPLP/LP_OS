@@ -137,6 +137,7 @@ class Window:
 def addWindow(title, x, y, width, height):
     windowsTitle.append(title)
     windows.append(Window(x, y, width, height, title))
+    return windows[windowsTitle.index(title)]
 def Mouse():
     global pointer,MiceStatus,MiceCatch,PassCheck
     while True:
@@ -145,16 +146,14 @@ def Mouse():
         #Desktop
         for i in ButtonList:
             if i.Runtime():
-                name=desktopFileList[ButtonList.index(i)]
-                with open("/LPSystem/Desktop/{}.df".format(name),'r') as f:
+                with open("/LPSystem/Desktop/{}.df".format(desktopFileList[ButtonList.index(i)]),'r') as f:
                     f.seek(0)
                     path = f.readline().replace('\r','').replace('\n','')
-                    if not (path in RunningApps):RunningApps.append(path)
-                    else:
+                    if not (path in RunningApps):
                         RunningApps.append(path)
-                        print("runfile at",repr(path))
+                        print("[info] Run App At",path)
                         gc.collect()
-                        print("mem_info:",gc.mem_free())
+                        print("[info] Memory Free:",gc.mem_free())
                         _thread.start_new_thread(execfile,(path,))
         if Start.Runtime():
             oled.poweroff()

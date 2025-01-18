@@ -1,5 +1,6 @@
 import sys
 import _thread
+from os import rename
 sys.path.append("/LPSystem")
 #LOCK SCREEN
 from devlib import*
@@ -30,5 +31,9 @@ _thread.start_new_thread(LockScreen,())
 from BlankEngine import*
 while not unlock:pass
 gc.collect()
+rename("main.py","main.rename")
+def ChangeMainName():
+    time.sleep(0.5)
+    rename("main.rename","main.py")
 _thread.start_new_thread(Mouse,())
-sys.exit(1)
+_thread.start_new_thread(ChangeMainName,())

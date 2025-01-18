@@ -1,15 +1,14 @@
 from LPSystem.devlib import*
 from LPSystem.Core import BinImage
-import gc,_thread,time,sys
+import gc,_thread,time
 stop = False
-speed = 2
+speed = 0.01
 logo = BinImage("/LPSystem/System/images/logo.bin")
 gc.collect()
 def _load():
     global stop,speed
-    speed = speed * 0.01
     i = 0
-    while not stop:
+    while True:
         if not stop:
             oled.fill(0)
             oled.Bitmap(52,19,logo,24,24,1)
@@ -17,6 +16,7 @@ def _load():
             oled.show()
             i = i+1 if i<17 else 0
             time.sleep(speed)
+        else:break
 #----bootloader-----#
 StartSystem = False
 oled.fill(0)
@@ -48,7 +48,6 @@ if StartSystem:
     logo,loads = [None] * 2
     del loads,logo
     gc.collect()
-    print("mem_info:",gc.mem_free())
+    print("[info] Memory Free:",gc.mem_free())
     stop = True
     execfile("/LPSystem/Desktop.py")
-    sys.exit(1)
