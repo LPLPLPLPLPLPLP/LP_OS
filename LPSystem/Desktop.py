@@ -3,7 +3,10 @@ import _thread
 sys.path.append("/LPSystem")
 #LOCK SCREEN
 from devlib import*
-from Core import UniTime,AutoCentering
+from Core import UniTime
+
+def AutoCentering(string):
+    return oled.DispChar(string,0,0,mode=Colormode.noshow)[0][0]
 unlock = False
 def LockScreen():
     while not (button_a.is_pressed() or button_b.is_pressed()):

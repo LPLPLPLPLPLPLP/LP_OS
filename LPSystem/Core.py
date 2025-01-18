@@ -1,4 +1,3 @@
-from devlib import*
 import micropython
 import time,os
 @micropython.native
@@ -11,5 +10,9 @@ def GetDFFileList(path):
         if not i.endswith(".df"):DirList.pop(DirList.index(i))
         else:DirList[DirList.index(i)]=i.replace(".df",'')
     return DirList
-def AutoCentering(string):
-    return oled.DispChar(string,0,0,mode=Colormode.noshow)[0][0]
+
+def BinImage(file_path,offset = 0) -> bytearray:
+    with open(file_path,"rb") as f:
+        f.seek(0)
+        for i in range(offset):f.readline()
+        return bytearray(f.readline()[:-2])
