@@ -16,3 +16,7 @@ def BinImage(file_path,offset = 0) -> bytearray:
         f.seek(0)
         for i in range(offset):f.readline()
         return bytearray(f.readline()[:-2])
+    
+def FastBool2Int(val):
+    if val:return 1
+    return 0

@@ -146,7 +146,7 @@ def Mouse():
         #Desktop
         for i in ButtonList:
             if i.Runtime():
-                with open("/LPSystem/Desktop/{}.df".format(desktopFileList[ButtonList.index(i)]),'r') as f:
+                with open("/LPSystem/Desktop/{}.df".format(desktopFileList[ButtonList.index(i)]),'r') as f: 
                     f.seek(0)
                     path = f.readline().replace('\r','').replace('\n','')
                     if not (path in RunningApps):
@@ -158,7 +158,7 @@ def Mouse():
         if Start.Runtime():
             oled.poweroff()
             __import__("machine").deepsleep()
-        oled.Bitmap(70,48,wifi_images[int(wlan.sta.isconnected())],16,16,1)
+        oled.Bitmap(70,48,wifi_images[FastBool2Int(wlan.sta.isconnected())],16,16,1)
         oled.text(UniTime(),88,52,1)
         oled.hline(0,47,128,1)
         #WindowsManager
@@ -177,10 +177,10 @@ def Mouse():
         if MouseY > -0.2:
             pointer[0] = pointer[0]-1 if pointer[0] > 0 else 0
         if MouseY < 0.2: 
-            pointer[0] = pointer[0]+1 if pointer[0] < 128 else 128
+            pointer[0] = pointer[0]+1 if pointer[0] < 127 else 127
         if MouceX < -0.2:
             pointer[1] = pointer[1]-1 if pointer[1] > 0 else 0
         if MouceX > 0.2: 
-            pointer[1] = pointer[1]+1 if pointer[1] < 64 else 64
+            pointer[1] = pointer[1]+1 if pointer[1] < 63 else 63
         MiceStatus = touchpad_p.is_pressed() or touchpad_y.is_pressed()
 gc.collect()
