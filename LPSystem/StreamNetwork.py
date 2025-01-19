@@ -5,10 +5,8 @@
 import socket
 
 def DownLoadFile(url,file,timeout=2,bufferSize=1024):#此处file是对象
-    if not url.startswith("http://"):url = "http://" + url
     print("访问:"+url)
     url_parse = url.split('/')
-    print("目标"+url_parse[2])
     host = url_parse[2]
     path = '/'
     if len(url_parse) > 3:
@@ -33,9 +31,8 @@ def DownLoadFile(url,file,timeout=2,bufferSize=1024):#此处file是对象
     
 
 def NormalGet(url,timeout=2):
-    print("访问:"+url)
+    print("访问:",url)
     url_parse = url.split('/')
-    print("目标"+url_parse[2])
     host = url_parse[2]
     path = '/'
     if len(url_parse) > 3:path = '/' + '/'.join(url_parse[3:])
@@ -53,15 +50,18 @@ def NormalGet(url,timeout=2):
     return response.decode()
 
 def ParseResponse(response):
-    response_parse = response.split('\r\n\r\n')
-    headers = response_parse[0].split('\r\n')
-    status_line = headers[0].split(' ')
-    status_code = status_line[1]
-    body = response_parse[1]
-    return status_code, body
+    try:
+        response_parse = response.split('\r\n\r\n')
+        headers = response_parse[0].split('\r\n')
+        status_line = headers[0].split(' ')
+        status_code = status_line[1]
+        body = response_parse[1]
+        return status_code, body
+    except:
+        raise OSError("RESPONSE ERROR")
 
 def Get(url, timeout=2):
     status_code, body = ParseResponse(NormalGet(url, timeout))
     if status_code != "200":raise OSError("status_code is {}".format(status_code))
     return body,status_code
-    # [0]是状态码 , [1]是响应体 , 建议放变量里面
+    #  [0]是响应体 ,[1]是状态码 , 建议放变量里面
