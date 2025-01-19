@@ -24,6 +24,7 @@ void make(fs::path dir_path){
         else{
             string str = path.string();
             string check_str = str.substr(working_path_length+1);
+            fs::path check_path = check_str;
             if(path.extension()==".py"&&check_str!="main.py"&&check_str!="boot.py"&&check_str!=R"(LPSystem\Desktop.py)"){//符合条件的文件进行编译
                 string cmd = ("mpy-cross-v5 " + str + " -march=xtensawin");
                 fs::path source_file = str.substr(0,str.length()-2)+"mpy";//编译后的文件
@@ -33,7 +34,7 @@ void make(fs::path dir_path){
                 printf("copy %s\n",source_file.string().c_str());
                 fs::copy(source_file,target);//移动文件
                 fs::remove(source_file);
-            }else if(check_str=="main.py"||check_str=="boot.py"||check_str==R"(LPSystem\Desktop.py)"){//特殊文件直接复制
+            }else if(check_str=="main.py"||check_str=="boot.py"||check_str==R"(LPSystem\Desktop.py)"||check_path.extension()==".bin"||check_path.extension()==".conf"){//特殊文件直接复制
                 fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
                 printf("copy %s\n",str.c_str());
                 fs::copy(str,target);

@@ -31,7 +31,7 @@ compile:
 
 此命令会自动扫描整个文件夹下的所有.py文件并将它们编译为.mpy文件并移动到build目录下
 编译规则:
-1.boot.py main.py LPSystem/Desktop.py不会被编译而是会直接移动到build目录下
+1.boot.py main.py LPSystem/Desktop.py 配置文件和.bin图像文件不会被编译而是会直接移动到build目录下
 2.其他无关文件不会进行操作
 
 exit:
