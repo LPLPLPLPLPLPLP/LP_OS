@@ -46,16 +46,7 @@ git clone https://github.com/LPLPLPLPLPLPLP/LP_OS.git
 
 ### 编译本项目
 
-将工作目录切换到 LP_OS 下，您将会看到一个**compile.exe**可执行文件双击运行
-(compile.exe是安全文件,源码在/tools/compile.cpp内开源)
-
-执行compile.exe后，输入以下命令继续执行
-```
-type 'e' to exit>compile
-```
-以编译整个程序(输入除了e以外的其他字符串都可以编译)
-
-输入e退出此程序
+详情见 docs/关于compile.cpp.md
 
 ### 刷入程序
 
