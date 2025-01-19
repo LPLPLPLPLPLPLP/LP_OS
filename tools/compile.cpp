@@ -34,7 +34,8 @@ void make(fs::path dir_path){
                 printf("copy %s\n",source_file.string().c_str());
                 fs::copy(source_file,target);//移动文件
                 fs::remove(source_file);
-            }else if(check_str=="main.py"||check_str=="boot.py"||check_str==R"(LPSystem\Desktop.py)"||check_path.extension()==".bin"||check_path.extension()==".conf"){//特殊文件直接复制
+            }else if(check_str=="main.py"||check_str=="boot.py"||check_str==R"(LPSystem\Desktop.py)"||
+                    check_path.extension()==".bin"||check_path.extension()==".conf"||check_path.extension()==".df"){//特殊文件直接复制
                 fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
                 printf("copy %s\n",str.c_str());
                 fs::copy(str,target);
