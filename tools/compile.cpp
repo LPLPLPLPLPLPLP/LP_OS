@@ -8,9 +8,9 @@ namespace fs = filesystem;
 fs::path working_path = fs::current_path();//当前路径
 fs::path build_path = working_path / "build";//编译路径
 fs::path config_path = working_path / "config.ini";
-string pass_path[10];
-string sp_file[20];
-string end_str[20];
+string pass_path[100];//对应配置文件的[SkipDirectory]
+string sp_file[100];//对应配置文件的[CopyFile]
+string end_str[100];//对应配置文件的[FileSuffix]
 int end_str_num = 0;
 int sp_file_num = 0;
 int config_num = 0;
@@ -65,22 +65,23 @@ bool load_config_file(){
         puts("读取配置文件错误!/Error load config file!");return false;}
     else{
         string tmp = "";
-        config >> tmp;
-        if(tmp=="[SkipDirectory]") for(int i=0;;i++){
+        while(!config.eof()){
             config >> tmp;
-            if(tmp!="-END-"){config_num++;pass_path[i]=tmp;}
-            else break;
-            
-        }config >> tmp;
-        if(tmp=="[CopyFile]") for(int i=0;;i++){
-            config >> tmp;
-            if(tmp!="-END-"){sp_file_num++;sp_file[i]=tmp;}
-            else break;
-        }config >> tmp;
-        if(tmp=="[FileSuffix]") for(int i=0;;i++){
-            config >> tmp;
-            if(!config.eof()){end_str_num++;end_str[i]=tmp;}
-            else{end_str_num++;end_str[i]=tmp;break;}
+            if(tmp=="[SkipDirectory]") for(int i=0;;i++){
+                config >> tmp;
+                if(tmp!="-END-"){config_num++;pass_path[i]=tmp;}
+                else break;
+            }
+            else if(tmp=="[CopyFile]") for(int i=0;;i++){
+                config >> tmp;
+                if(tmp!="-END-"){sp_file_num++;sp_file[i]=tmp;}
+                else break;
+            }
+            else if(tmp=="[FileSuffix]") for(int i=0;;i++){
+                config >> tmp;
+                if(tmp!="-END-"){end_str_num++;end_str[i]=tmp;}
+                else break;
+            }
         }
         return true;
     }
