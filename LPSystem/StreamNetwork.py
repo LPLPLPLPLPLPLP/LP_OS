@@ -28,7 +28,7 @@ def DownLoadFile(url,file,timeout=2,bufferSize=1024):#此处file是对象
             raise OSError("status_code is {}".format(StatusCode))
         del data
     s.close()
-    
+
 
 def NormalGet(url,timeout=2):
     print("访问:",url)
@@ -65,3 +65,7 @@ def Get(url, timeout=2):
     if status_code != "200":raise OSError("status_code is {}".format(status_code))
     return body,status_code
     #  [0]是响应体 ,[1]是状态码 , 建议放变量里面
+
+if __name__ == "__main__":
+    with open("test.txt","wb") as f:
+        DownLoadFile_test("http://lplplplplplplp.github.io",f,5)

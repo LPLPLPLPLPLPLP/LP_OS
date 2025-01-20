@@ -1,15 +1,24 @@
 #include<iostream>
 #include<filesystem>
 #include<string>
+#include<ios>
+#include<fstream>
 using namespace std;
 namespace fs = filesystem;
 fs::path working_path = fs::current_path();//当前路径
 fs::path build_path = working_path / "build";//编译路径
+fs::path config_path = working_path / "config.ini";
+string pass_path[10];
+string sp_file[20];
+string end_str[20];
+int end_str_num = 0;
+int sp_file_num = 0;
+int config_num = 0;
 int working_path_length = working_path.string().length();
 void make(fs::path dir_path){
     if(dir_path.string().length()>2){
         string tmp = dir_path.string();
-        if(tmp==working_path/".git"||tmp==working_path/"docs"||tmp==working_path/"tools"||tmp==working_path/"images"||tmp==working_path/"build")return ;//不需要扫描的路径
+        for(int i=0;i<config_num;i++) if(tmp==working_path/pass_path[i]) return ;
     }
     string dir_path_str = dir_path.string();//当前扫描路径
     fs::path test_path;
@@ -29,27 +38,57 @@ void make(fs::path dir_path){
                 string cmd = ("mpy-cross-v5 " + str + " -march=xtensawin");
                 fs::path source_file = str.substr(0,str.length()-2)+"mpy";//编译后的文件
                 fs::path target = (create_build_path.string()+R"(\)"+(path.filename().string()).substr(0,(path.filename().string()).length()-2)+"mpy");//复制的目标文件
-                cout << cmd << '\n';
+                printf("%s\n",cmd.c_str());
                 system(cmd.c_str());//编译
                 printf("copy %s\n",source_file.string().c_str());
                 fs::copy(source_file,target);//移动文件
                 fs::remove(source_file);
-            }else if(check_str=="main.py"||check_str=="boot.py"||check_str==R"(LPSystem\Desktop.py)"||
-                    check_path.extension()==".bin"||check_path.extension()==".conf"||check_path.extension()==".df"){//特殊文件直接复制
-                fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
-                printf("copy %s\n",str.c_str());
-                fs::copy(str,target);
+            }else{
+                for(int i=0;i<sp_file_num;i++) if(check_str==sp_file[i]){
+                    fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
+                    printf("copy %s\n",str.c_str());
+                    fs::copy(str,target);
+                }
+                for(int i=0;i<end_str_num;i++) if(check_path.extension()==end_str[i]){
+                    fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
+                    printf("copy %s\n",str.c_str());
+                    fs::copy(str,target);
+                }
             }
         }
     }
 }
+void load_config_file(){
+    ifstream config(config_path,ios::in);
+    if(!config.is_open()) puts("读取配置文件错误!/Error load config file!");
+    else{
+        string tmp = "";
+        for(int i=0;;i++){
+            config >> tmp;
+            if(tmp!="-"){config_num++;pass_path[i]=tmp;}
+            else break;
+        }
+        for(int i=0;;i++){
+            config >> tmp;
+            if(tmp!="-"){sp_file_num++;sp_file[i]=tmp;}
+            else break;
+        }
+        for(int i=0;;i++){
+            config >> tmp;
+            if(!config.eof()){end_str_num++;end_str[i]=tmp;}
+            else{end_str_num++;end_str[i]=tmp;break;}
+        }
+    }
+}
 int main(){
+    puts("加载配置文件中/loading config file");
+    load_config_file();
     string s;
-    cout << "构建路径/Build path is " << build_path.string() << '\n';
-    cout << "工作路径/Working path is " << working_path.string() << '\n';
+    std::cout << "构建路径/Build path is " << build_path.string() << '\n';
+    std::cout << "工作路径/Working path is " << working_path.string() << '\n';
     puts("命令/commands:");
-    cout<<"compile:\u626b\u63cf\u5e76\u7f16\u8bd1"<<endl;
-    cout<<"exit:\u9000\u51fa\u7a0b\u5e8f"<<endl;
+    std::cout<<"compile:\u626b\u63cf\u5e76\u7f16\u8bd1"<<endl;
+    std::cout<<"exit:\u9000\u51fa\u7a0b\u5e8f"<<endl;
     while(1){
         printf(" > ");
         cin>>s;
