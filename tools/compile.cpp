@@ -18,6 +18,7 @@ int working_path_length = working_path.string().length();
 void make(fs::path dir_path){
     if(dir_path.string().length()>2){
         string tmp = dir_path.string();
+        if(tmp==working_path/"build") return;
         for(int i=0;i<config_num;i++) if(tmp==working_path/pass_path[i]) return ;
     }
     string dir_path_str = dir_path.string();//当前扫描路径
@@ -58,31 +59,39 @@ void make(fs::path dir_path){
         }
     }
 }
-void load_config_file(){
+bool load_config_file(){
     ifstream config(config_path,ios::in);
-    if(!config.is_open()) puts("读取配置文件错误!/Error load config file!");
+    if(!config.is_open()){ 
+        puts("读取配置文件错误!/Error load config file!");return false;}
     else{
         string tmp = "";
-        for(int i=0;;i++){
+        config >> tmp;
+        if(tmp=="[SkipDirectory]") for(int i=0;;i++){
             config >> tmp;
-            if(tmp!="-"){config_num++;pass_path[i]=tmp;}
+            if(tmp!="-END-"){config_num++;pass_path[i]=tmp;}
             else break;
-        }
-        for(int i=0;;i++){
+            
+        }config >> tmp;
+        if(tmp=="[CopyFile]") for(int i=0;;i++){
             config >> tmp;
-            if(tmp!="-"){sp_file_num++;sp_file[i]=tmp;}
+            if(tmp!="-END-"){sp_file_num++;sp_file[i]=tmp;}
             else break;
-        }
-        for(int i=0;;i++){
+        }config >> tmp;
+        if(tmp=="[FileSuffix]") for(int i=0;;i++){
             config >> tmp;
             if(!config.eof()){end_str_num++;end_str[i]=tmp;}
             else{end_str_num++;end_str[i]=tmp;break;}
         }
+        return true;
     }
 }
 int main(){
     puts("加载配置文件中/loading config file");
-    load_config_file();
+    if(!load_config_file()){
+        puts("读配置文件失败!");
+        system("pause");
+        return 0;
+    }
     string s;
     std::cout << "构建路径/Build path is " << build_path.string() << '\n';
     std::cout << "工作路径/Working path is " << working_path.string() << '\n';
