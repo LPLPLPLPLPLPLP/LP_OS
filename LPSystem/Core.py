@@ -1,5 +1,5 @@
 import micropython
-import time,os
+import time,os,re
 @micropython.native
 def UniTime():
     t = time.localtime()
@@ -20,3 +20,28 @@ def BinImage(file_path,offset = 0) -> bytearray:
 def FastBool2Int(val):
     if val:return 1
     return 0
+
+class toml:
+    def __init__(self,file_path):
+        self.fp = file_path
+        self.data = {}
+    
+    def toml2json(self):
+        with open(self.fp,"r") as f:
+            f.seek(0)
+            i = 1
+            sharp = False
+            while i != '':
+                i = f.read(1)
+                if sharp==True:
+                    if i == '\n':
+                        sharp = False
+                    else:
+                        continue
+                #----------------#
+                if i == '#':
+                    sharp = True
+                    continue
+                
+                
+                

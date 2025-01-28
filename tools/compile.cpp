@@ -1,13 +1,14 @@
-#include<iostream>
-#include<filesystem>
-#include<string>
-#include<ios>
-#include<fstream>
+#include <iostream>
+#include <filesystem>
+#include <string>
+#include <ios>
+#include <fstream>
+#include <cstring>
 using namespace std;
 namespace fs = filesystem;
 fs::path working_path = fs::current_path();//当前路径
 fs::path build_path = working_path / "build";//编译路径
-fs::path config_path = working_path / "config.ini";
+fs::path config_path;
 string pass_path[100];//对应配置文件的[SkipDirectory]
 string sp_file[100];//对应配置文件的[CopyFile]
 string end_str[100];//对应配置文件的[FileSuffix]
@@ -15,6 +16,12 @@ int end_str_num = 0;
 int sp_file_num = 0;
 int config_num = 0;
 int working_path_length = working_path.string().length();
+char sp_ch[5] = {'-','c','o','n','f'};
+string config_file_path;
+void cp(fs::path source,fs::path target){
+    printf("copy %s",source);
+    fs::copy(source,target);
+}
 void make(fs::path dir_path){
     if(dir_path.string().length()>2){
         string tmp = dir_path.string();
@@ -36,7 +43,7 @@ void make(fs::path dir_path){
             string check_str = str.substr(working_path_length+1);
             fs::path check_path = check_str;
             if(path.extension()==".py"&&check_str!="main.py"&&check_str!="boot.py"&&check_str!=R"(LPSystem\Desktop.py)"){//符合条件的文件进行编译
-                string cmd = ("mpy-cross-v5 " + str + " -march=xtensawin");
+                string cmd = "mpy-cross-v5 " + str + " -march=xtensawin";
                 fs::path source_file = str.substr(0,str.length()-2)+"mpy";//编译后的文件
                 fs::path target = (create_build_path.string()+R"(\)"+(path.filename().string()).substr(0,(path.filename().string()).length()-2)+"mpy");//复制的目标文件
                 printf("%s\n",cmd.c_str());
@@ -45,16 +52,8 @@ void make(fs::path dir_path){
                 fs::copy(source_file,target);//移动文件
                 fs::remove(source_file);
             }else{
-                for(int i=0;i<sp_file_num;i++) if(check_str==sp_file[i]){
-                    fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
-                    printf("copy %s\n",str.c_str());
-                    fs::copy(str,target);
-                }
-                for(int i=0;i<end_str_num;i++) if(check_path.extension()==end_str[i]){
-                    fs::path target = (create_build_path.string()+R"(\)"+path.filename().string());
-                    printf("copy %s\n",str.c_str());
-                    fs::copy(str,target);
-                }
+                for(int i=0;i<sp_file_num;i++) if(check_str==sp_file[i]) cp(str,(create_build_path.string()+R"(\)"+path.filename().string()));
+                for(int i=0;i<end_str_num;i++) if(check_path.extension()==end_str[i]) cp(str,(create_build_path.string()+R"(\)"+path.filename().string()));
             }
         }
     }
@@ -64,7 +63,7 @@ bool load_config_file(){
     if(!config.is_open()){ 
         puts("读取配置文件错误!/Error load config file!");return false;}
     else{
-        string tmp = "";
+        string tmp;
         while(!config.eof()){
             config >> tmp;
             if(tmp=="[SkipDirectory]") for(int i=0;;i++){
@@ -86,14 +85,33 @@ bool load_config_file(){
         return true;
     }
 }
-int main(){
+int main(int argc,char *argv[]){
+    if(argc>=2){
+        for(int i=0;i<argc;i++){
+            printf("获得参数#%d:%s\n",i,argv[i]);
+            if(i==1){
+            }
+        }
+        for(int j=0;j<strlen(argv[1]);j++){
+            printf("%d ",argv[1][j]);
+        }
+        puts("");
+        for(int i=1;i<argc;i++){ 
+            if(argv[i] == sp_ch){
+                i++;
+                config_file_path = argv[i];
+                config_path = working_path / config_file_path;
+                printf("自定义配置路径/config path at : %s\n",config_path.string().c_str());
+            }
+        }
+    }else config_path =  working_path / "config.ini";
     puts("加载配置文件中/loading config file");
     if(!load_config_file()){
         puts("读配置文件失败!");
         system("pause");
         return 0;
     }
-    string s;
+    string cmd;
     std::cout << "构建路径/Build path is " << build_path.string() << '\n';
     std::cout << "工作路径/Working path is " << working_path.string() << '\n';
     puts("命令/commands:");
@@ -101,12 +119,12 @@ int main(){
     std::cout<<"exit:\u9000\u51fa\u7a0b\u5e8f"<<endl;
     while(1){
         printf(" > ");
-        cin>>s;
-        if(s=="compile"){
+        cin>>cmd;
+        if(cmd=="compile"){
             fs::remove_all(build_path);
             fs::create_directory(build_path);
             make(working_path);
-        }else if(s=="exit") break;
+        }else if(cmd=="exit") break;
         else puts("unkown command");
     }
     return 0;

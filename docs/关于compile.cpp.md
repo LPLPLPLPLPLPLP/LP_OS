@@ -13,10 +13,20 @@ compile.cpp在./tools目录下，切换到此目录即可找到该文件
 
 ### 编译
 
-推荐使用g++来编译，使用以下命令编译为可执行程序
+推荐使用g++来编译，若使用g++编译，请使用以下命令编译为可执行程序
 ```bash
-g++ -o compile compile.cpp -std=c++17 -finput-charset=UTF-8 -fexec-charset=GBK
+g++ -o compile compile.cpp -std=c++17 -finput-charset=UTF-8 -fexec-charset=GBK -O1
 ```
+命令解析:
+
+`g++`:使用g++编译
+`-o`:g++参数，编译
+`compile`:输出的可执行文件
+`compile.cpp`:要编译的源代码
+`-std=c++17`:g++参数，使用c++17标准编译
+`-finput-charset=UTF-8 -fexec-charset=GBK`:设置输出字符格式,保证中文字符正常输出
+`-O1`:编译器编译优化(O2,O3的ASM均已和O1一致)
+
 
 编译完成后请记得将程序移动或复制到上级目录以正常运行
 
